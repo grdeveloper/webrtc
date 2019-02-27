@@ -11,4 +11,16 @@ app.get('/', function (req, res) {
 
 io.on('connection', function (socket) {
   console.log('connected');
+
+  socket.on('offer', function (data) {
+    socket.emit('offer', data);
+  });
+
+  socket.on('answer', function (data) {
+    socket.emit('answer', data);
+  });
+
+  socket.on('candidate', function (data) {
+    socket.emit('candidate', data);
+  });
 });

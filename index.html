@@ -10,7 +10,9 @@
 <body>
 
   <h1>WebRTC Simple Example for Absolute Beginners</h1>
-  <video autoplay playsinline></video>
+
+  <video class="remoteVideo" autoplay playsinline></video>
+  <video class="localVideo" autoplay playsinline></video>
 
   <script src="/socket.io/socket.io.js"></script>
 
@@ -23,7 +25,9 @@
     };
 
     const socket = io.connect(window.location.origin);
-    const video = document.querySelector('video');
+
+    const remoteVideo = document.querySelector('.remoteVideo');
+    const localVideo = document.querySelector('.localVideo');
 
     // The same for both browser A and B
     const peerConnection = new RTCPeerConnection(config);
@@ -33,7 +37,7 @@
       video: true
     })
       .then(function (stream) {
-        video.srcObject = stream;
+        localVideo.srcObject = stream;
 
         peerConnection.addStream(stream);
         peerConnection.createOffer()
@@ -71,7 +75,7 @@
     });
 
     peerConnection.onaddstream = function (event) {
-      video.srcObject = event.stream;
+      remoteVideo.srcObject = event.stream;
     };
 
     peerConnection.onicecandidate = function (event) {
