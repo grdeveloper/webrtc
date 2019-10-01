@@ -9,7 +9,7 @@ class App extends Component {
       this.candidate = null;
       this.localVideoRef = React.createRef();
       this.remoteVideoRef = React.createRef();
-      this.socket = openSocket('/');
+      this.socket = openSocket('https://joe-webrtc.herokuapp.com');
   }
 
   componentDidMount() {
