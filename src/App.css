@@ -1,0 +1,34 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.webrtc {
+    display: block;
+    max-width: 50%;
+    position: relative;
+}
+
+video:nth-child(1) {
+    width: 100%;
+    height: inherit;
+    position: relative;
+}
+
+video:nth-child(2) {
+    width: 250px;
+    height: 150px;
+    position: absolute;
+    bottom: 88px;
+    right: 0;
+}
+
+button {
+    padding: 5px 10px;
+    border: 1px solid dodgerblue;
+    border-radius: 3px;
+    background: #279a9f;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}

@@ -1,11 +1,15 @@
 import React, { Component } from 'react';
+import './App.css';
+import openSocket from 'socket.io-client';
 
 class App extends Component {
   constructor(props) {
       super(props);
 
+      this.candidate = null;
       this.localVideoRef = React.createRef();
       this.remoteVideoRef = React.createRef();
+      this.socket = openSocket('http://localhost:3000');
   }
 
   componentDidMount() {
@@ -22,11 +26,11 @@ class App extends Component {
       // };
 
       this.pc = new RTCPeerConnection(pc_config);
-      this.pc.onicecandidate = e => {if (e.candidate) console.log(JSON.stringify(e.candidate))};
-      this.pc.onconnectionstatechange = e => console.log(e);
+      this.pc.onicecandidate = e => {if (e.candidate && !this.candidate) this.candidate = e.candidate;};
+      this.pc.onconnectionstatechange = e => console.log('onconnectionstatechange fired', e);
       this.pc.onaddstream = e => this.remoteVideoRef.current.srcObject = e.stream;
 
-      const constraints = {video: true};
+      const constraints = {video: true, audio: false};
       const success = stream => {
           window.localStream = stream;
           this.localVideoRef.current.srcObject = stream;
@@ -39,69 +43,69 @@ class App extends Component {
           const stream = await navigator.mediaDevices.getUserMedia(constraints);
           success(stream);
       })().catch(failure);
+
+      this.socket.on('offered', desc => {
+          console.log('offer came');
+          this.pc.setRemoteDescription(new RTCSessionDescription(desc));
+          this.pc.createAnswer({offerToReceiveVideo: 1, offerToReceiveAudio: 1})
+              .then(sdp => {
+                  console.log(JSON.stringify(sdp));
+                  this.pc.setLocalDescription(sdp);
+                  this.socket.emit('answer', sdp);
+                  console.log('answer send');
+              }, e => {});
+      });
+
+      this.socket.on('answered', desc => {
+          console.log('answer received');
+          this.pc.setRemoteDescription(new RTCSessionDescription(desc));
+          this.socket.emit('candidate', this.candidate);
+          console.log('candidate sent');
+      });
+
+      this.socket.on('candidated', candidate => {
+          console.log('candidate received', candidate);
+          this.pc.addIceCandidate(new RTCIceCandidate(candidate));
+      });
+
+      this.socket.on('hangup', () => {
+          this.remoteVideoRef.current.srcObject = null;
+          this.pc.close();
+          this.pc.onicecandidate = null;
+          this.pc.onconnectionstatechange = null;
+          this.pc.onaddstream = null;
+          window.localStream = null;
+      });
   }
 
   createOffer = () => {
       console.log('offer');
-      this.pc.createOffer({offerToReceiveVideo: 1})
+      this.pc.createOffer({offerToReceiveVideo: 1, offerToReceiveAudio: 1})
           .then(sdp => {
               console.log(JSON.stringify(sdp));
               this.pc.setLocalDescription(sdp);
+              this.socket.emit('offer', sdp);
           }, e => {});
   };
 
-  setRemoteDescription = () => {
-      const desc = JSON.parse(this.textRef.value);
-      this.pc.setRemoteDescription(new RTCSessionDescription(desc));
-  };
-
-  createAnswer = () => {
-      console.log('answer');
-      this.pc.createAnswer({offerToReceiveVideo: 1})
-          .then(sdp => {
-              console.log(JSON.stringify(sdp));
-              this.pc.setLocalDescription(sdp);
-          }, e => {});
-  };
-
-  addCandidate = () => {
-      const candidate = JSON.parse(this.textRef.value);
-      console.log('adding candidate: ', candidate);
-      this.pc.addIceCandidate(new RTCIceCandidate(candidate));
+  hangUp = () => {
+      this.socket.emit('hangup');
   };
 
   render() {
       return (
-          <div>
+          <div className='webrtc'>
               <video
-                style={{
-                    width: 240,
-                    height: 240,
-                    margin: 5,
-                    backgroundColor: 'black'
-                }}
                 ref={this.localVideoRef}
                 autoPlay
                 />
               <video
-                style={{
-                    width: 240,
-                    height: 240,
-                    margin: 5,
-                    backgroundColor: 'black'
-                }}
                 ref={this.remoteVideoRef}
                 autoPlay
                 />
-
               <br/>
-              <button onClick={this.createOffer}>Offer</button>
-              <button onClick={this.createAnswer}>Answer</button>
-              <br/>
-              <textarea ref={ref => {this.textRef = ref}} />
-              <br/>
-              <button onClick={this.setRemoteDescription}>Set Remote Desc</button>
-              <button onClick={this.addCandidate}>Add Candidate</button>
+              <button onClick={this.createOffer}>Call</button>
+              <button onClick={this.hangUp}>Hang Up</button>
           </div>
       );
   };
