@@ -19,4 +19,4 @@ io.on('connection', (client) => {
     client.on('hangup', () => io.emit('hangup'));
 });
 
-http.listen(3000, () => {console.log(`Running on port ${port}`);});
+http.listen(port, () => {console.log(`Running on port ${port}`);});
