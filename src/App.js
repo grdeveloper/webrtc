@@ -9,7 +9,7 @@ class App extends Component {
       this.candidate = null;
       this.localVideoRef = React.createRef();
       this.remoteVideoRef = React.createRef();
-      this.socket = openSocket('http://localhost:3000');
+      this.socket = openSocket('/');
   }
 
   componentDidMount() {
@@ -30,7 +30,7 @@ class App extends Component {
       this.pc.onconnectionstatechange = e => console.log('onconnectionstatechange fired', e);
       this.pc.onaddstream = e => this.remoteVideoRef.current.srcObject = e.stream;
 
-      const constraints = {video: true, audio: false};
+      const constraints = {video: true, audio: true};
       const success = stream => {
           window.localStream = stream;
           this.localVideoRef.current.srcObject = stream;

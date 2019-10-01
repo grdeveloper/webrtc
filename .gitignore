@@ -7,6 +7,7 @@
 
 #redactor
 .idea
+.idea/workspace.xml
 
 # testing
 /coverage
