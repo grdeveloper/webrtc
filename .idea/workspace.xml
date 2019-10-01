@@ -118,11 +118,11 @@
       <path value="$PROJECT_DIR$/package.json" />
     </packageJsonPaths>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="555" />
-    <option name="y" value="-29" />
-    <option name="width" value="1173" />
-    <option name="height" value="847" />
+    <option name="y" value="-30" />
+    <option name="width" value="1174" />
+    <option name="height" value="848" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
