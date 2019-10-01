@@ -10,7 +10,6 @@ class App extends Component {
       this.localVideoRef = React.createRef();
       this.remoteVideoRef = React.createRef();
       this.socket = openSocket('localhost:3000');
-      console.dir(this.socket);
   }
 
   componentDidMount() {
@@ -46,26 +45,20 @@ class App extends Component {
       })().catch(failure);
 
       this.socket.on('offered', desc => {
-          console.log('offer came');
           this.pc.setRemoteDescription(new RTCSessionDescription(desc));
           this.pc.createAnswer({offerToReceiveVideo: 1, offerToReceiveAudio: 1})
               .then(sdp => {
-                  console.log(JSON.stringify(sdp));
                   this.pc.setLocalDescription(sdp);
                   this.socket.emit('answer', sdp);
-                  console.log('answer send');
               }, e => {});
       });
 
       this.socket.on('answered', desc => {
-          console.log('answer received');
           this.pc.setRemoteDescription(new RTCSessionDescription(desc));
           this.socket.emit('candidate', this.candidate);
-          console.log('candidate sent');
       });
 
       this.socket.on('candidated', candidate => {
-          console.log('candidate received', candidate);
           this.pc.addIceCandidate(new RTCIceCandidate(candidate));
       });
 
@@ -80,10 +73,8 @@ class App extends Component {
   }
 
   createOffer = () => {
-      console.log('offer');
       this.pc.createOffer({offerToReceiveVideo: 1, offerToReceiveAudio: 1})
           .then(sdp => {
-              console.log(JSON.stringify(sdp));
               this.pc.setLocalDescription(sdp);
               this.socket.emit('offer', sdp);
           }, e => {});
