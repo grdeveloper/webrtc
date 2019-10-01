@@ -9,6 +9,9 @@
 .idea
 .idea/workspace.xml
 
+#build
+/build
+
 # testing
 /coverage
 

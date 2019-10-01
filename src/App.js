@@ -9,8 +9,8 @@ class App extends Component {
       this.candidate = null;
       this.localVideoRef = React.createRef();
       this.remoteVideoRef = React.createRef();
-      this.socket = openSocket('/');
-      console.dir(socket);
+      this.socket = openSocket('localhost:3000');
+      console.dir(this.socket);
   }
 
   componentDidMount() {
